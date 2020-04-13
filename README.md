@@ -115,7 +115,7 @@ C:\GitProjects\dir1\dir2\Scripts\python.exe "C:/GitProjects/dir1/ol_script.py" -
 ```
 
 ## Support
-For any questions, do net hesitate to e-mail me at Hridai@ThatAutomation.co
+For any questions, do not hesitate to e-mail me at Hridai@ThatAutomation.co
 
 Windows Documentation: https://docs.microsoft.com/en-us/office/vba/api/overview/outlook/object-model
 
