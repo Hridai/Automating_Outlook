@@ -7,9 +7,9 @@
 ### The below script can be called from the command line or can be embedded in another program so it is easy to schedule using a task scheduler (or crontab) as well as triggering manual runs as an embedded functionality in another program. All is explained below.
 
 "Can you automate the saving down of attachments from a daily file I receive from x?"
-This is often the first question I'm asked when I tell people I can help them automate their most menial tasks. And the short answer is: **Yes**.
+This is often the first question I'm asked when I tell people I can help them automate their most menial tasks. And the short answer is: **Yes!**.
 
-There are two approaches. The VBA method which will require you to write this code in the VBE within Outlook. This is impossible to trigger via an e-mail event as Microsoft removed the ability to trigger a script on the back of one mid 2018. It is possible to use the same Outlook objects in python by way of a very poorly documented library called **[win32com](https://docs.microsoft.com/en-us/office/vba/api/overview/outlook/object-model)**. It was tough to get it to work, but once you get it to work it works without any of the funky hit-and-miss randomness anyone who's ever used VBA will have experienced. It was like a dream and here's how to do it.
+There are two approaches. The VBA method which will require you to write this code in the VBE within Outlook. This is impossible to trigger via an e-mail event as Microsoft removed the ability to trigger a script on the back of one mid 2018. Task Scheduler is my method of choice to automate this functionality. It is possible to use the same Outlook objects in python by way of a very poorly documented library called **[win32com](https://docs.microsoft.com/en-us/office/vba/api/overview/outlook/object-model)**. It was tough to get it to work, but once you figure it out, it works without any of the funky hit-and-miss randomness anyone who's ever used VBA will have experienced. **It works like a dream and here's how to get started**.
 
 ## Prerequisites
 Python 3 and **pip-install pywin32**
@@ -115,7 +115,7 @@ C:\GitProjects\dir1\dir2\Scripts\python.exe "C:/GitProjects/dir1/ol_script.py" -
 ```
 
 ## Support
-For any questions, do not hesitate to e-mail me at Hridai@ThatAutomation.co
+For any questions do not hesitate to e-mail me at HridaiTrivedy@Gmail.com
 
 Windows Documentation: https://docs.microsoft.com/en-us/office/vba/api/overview/outlook/object-model
 
