@@ -1,6 +1,6 @@
 # Automating Outlook using Python win32com
 Saving attachments from a daily e-mail or moving an e-mail from one folder to another is super easy using Python!
-You can carry out literally any repetetive task using the Win32com library and the below will demonstrate a basic example which carries out the below:
+You can carry out literally any repetitive task using the Win32com library and the below will demonstrate a basic example which carries out the below:
 * Goes through emails in a folder one by one and saves the attachment to a windows directory of your choice
 * Moves the processed e-mail to another Outlook folder
 
