@@ -7,13 +7,13 @@ import win32com.client
 def _right(s, amount):
     return s[-amount:]
 
-def _scriptOutput(s, guiEntry):
-    if guiEntry:
+def _scriptOutput(s, gui_entry):
+    if gui_entry:
         return s
     else:
         sys.exit(s)
 
-def runOlScript(outdest, filefmt, olreadfolder, olprocessedfolder, guiEntry, proc):
+def run_ol_Script(outdest, filefmt, olreadfolder, olprocessedfolder, gui_entry, proc):
     outdest = os.path.normpath(outdest)
     outlook = win32com.client.Dispatch("Outlook.Application").GetNamespace("MAPI")
     inbox = None
@@ -39,34 +39,34 @@ def runOlScript(outdest, filefmt, olreadfolder, olprocessedfolder, guiEntry, pro
 
     messages = inbox.Items
     if len(messages) == 0:
-        _scriptOutput( 'No emails found in folder [{}]'.format(olreadfolder), guiEntry)
+        _scriptOutput( 'No emails found in folder [{}]'.format(olreadfolder), gui_entry)
     
-    mailCounter = 0
+    mail_counter = 0
     for msg in list(messages):
-        bProcessed = False
+        b_processed = False
         if proc == 'olatt':
             for atmt in msg.Attachments:
                 if filefmt == 'blank' or str.lower(_right(atmt.FileName, len(filefmt))) == str.lower(filefmt):
-                    tmpFileName = os.path.normpath(os.path.join(outdest, f'{msg.Subject} {atmt.FileName}'))
+                    temp_filename = os.path.normpath(os.path.join(outdest, f'{msg.Subject} {atmt.FileName}'))
                     try:
-                        atmt.SaveAsFile(tmpFileName)
-                        print('File Successfully Saved [{}]'.format(tmpFileName))
-                        bProcessed = True
+                        atmt.SaveAsFile(temp_filename)
+                        print('File Successfully Saved [{}]'.format(temp_filename))
+                        b_processed = True
                     except Exception as e:
-                        _scriptOutput(str(e) + ' | File NOT saved [{}]'.format(tmpFileName), guiEntry)
+                        _scriptOutput(str(e) + ' | File NOT saved [{}]'.format(temp_filename), gui_entry)
         if proc == 'olbody':
             listbody = msg.Body.split("\r\n")
-            tmpFileName = os.path.normpath(os.path.join(outdest, f'{msg.Subject} {msg.CreationTime.strftime("%Y%m%d")} .csv'))
-            bProcessed = True
-            with open(tmpFileName, 'w', newline='') as file:
+            temp_filename = os.path.normpath(os.path.join(outdest, f'{msg.Subject} {msg.CreationTime.strftime("%Y%m%d")} .csv'))
+            b_processed = True
+            with open(temp_filename, 'w', newline='') as file:
                 writer = csv.writer(file)
                 for row in listbody:
                     writer.writerow([row])
-        if bProcessed and procbox is not None:
-            mailCounter += 1
+        if b_processed and procbox is not None:
+            mail_counter += 1
             msg.Move(procbox)
 
-    return 'Succesfully processed {} emails!'.format(mailCounter) if mailCounter > 0 else 'No emails processed'
+    return 'Succesfully processed {} emails!'.format(mail_counter) if mail_counter > 0 else 'No emails processed'
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -91,4 +91,4 @@ if __name__ == "__main__":
         sys.exit('No outlook folder to move processed mails to defined using --olprocfolder!')
     proc = 'olatt' if b_olatt else 'olbody' if b_olbody else ''
 
-    runOlScript(args.outdest, args.olfiletype, args.olfolder, args.olprocfolder, False, proc )
+    run_ol_Script(args.outdest, args.olfiletype, args.olfolder, args.olprocfolder, False, proc)
