@@ -29,57 +29,51 @@ There is one main function that has been written such that you can call it from 
 
 ``` python
     def runOlScript(outdest, filefmt, olreadfolder, olprocessedfolder, guiEntry, proc):
-    if _right(outdest,1) != '/':
-        outdest = outdest + '/'
-
-    # To Do: Deal with anything starting with re: or fw:
+    outdest = os.path.normpath(outdest)
     outlook = win32com.client.Dispatch("Outlook.Application").GetNamespace("MAPI")
-    try:
-        inbox = outlook.Folders.Item(1).Folders['Inbox'].Folders[olreadfolder]
-    except Exception as e:
-        _scriptOutput(str(e) + " | Could not find Outlook Folder [{}]".format(olreadfolder), guiEntry)
-    try:
-        outlook.Folders.Item(1).Folders['Inbox'].Folders[olreadfolder].Folders[olprocessedfolder]
-    except Exception as e:
-        _scriptOutput(str(e) + " | Could not find Outlook Folder [{}]".format(olprocessedfolder), guiEntry)
+    inbox = _find_subfolder(outlook.Folders, olreadfolder)
+    if inbox is None:
+        sys.exit(f'No Folder {olreadfolder} found!!! Exiting.')
+    procbox = _find_subfolder(outlook.Folders, olprocessedfolder)
+    if procbox is None:
+        sys.exit(f'Folder {olprocessedfolder} not found!!! Exiting.')
 
     messages = inbox.Items
     if len(messages) == 0:
-        _scriptOutput( 'No emails found in folder [{}]'.format(olreadfolder), guiEntry)
-    
-    mailCounter = 0
+        _scriptOutput( 'No emails found in folder [{}]'.format(olreadfolder), gui_entry)
+    mail_counter = 0
     for msg in list(messages):
-        bProcessed = False
+        b_processed = False
         if proc == 'olatt':
             for atmt in msg.Attachments:
                 if filefmt == 'blank' or str.lower(_right(atmt.FileName, len(filefmt))) == str.lower(filefmt):
-                    tmpFileName = outdest + msg.Subject + '_' + atmt.FileName
+                    temp_filename = os.path.normpath(os.path.join(outdest, f'{msg.Subject} {atmt.FileName}'))
                     try:
-                        atmt.SaveAsFile(tmpFileName)
-                        print('File Successfully Saved [{}]'.format(tmpFileName))
-                        bProcessed = True
+                        atmt.SaveAsFile(temp_filename)
+                        print('File Successfully Saved [{}]'.format(temp_filename))
+                        b_processed = True
                     except Exception as e:
-                        _scriptOutput(str(e) + ' | File NOT saved [{}]'.format(tmpFileName), guiEntry)
+                        _scriptOutput(str(e) + ' | File NOT saved [{}]'.format(temp_filename), gui_entry)
         if proc == 'olbody':
             listbody = msg.Body.split("\r\n")
-            tmpFileName = outdest + msg.Subject + '_' + msg.CreationTime.strftime("%Y%m%d") + '.csv'
-            bProcessed = True
-            with open(tmpFileName, 'w', newline='') as file:
+            temp_filename = os.path.normpath(os.path.join(outdest, f'{msg.Subject} {msg.CreationTime.strftime("%Y%m%d")} .csv'))
+            b_processed = True
+            with open(temp_filename, 'w', newline='') as file:
                 writer = csv.writer(file)
                 for row in listbody:
                     writer.writerow([row])
-        if bProcessed:
-            mailCounter += 1
-            msg.Move(outlook.Folders.Item(1).Folders['Inbox'].Folders[olreadfolder].Folders[olprocessedfolder])
-        
-    return 'Succesfully processed {} emails!'.format(mailCounter) if mailCounter > 0 else 'No emails processed'
+        if b_processed and procbox is not None:
+            mail_counter += 1
+            msg.Move(procbox)
+
+    return 'Succesfully processed {} emails!'.format(mail_counter) if mail_counter > 0 else 'No emails processed'
 ```
 
 runOlScript has 6 function arguments:
 1. outdest - the path to the folder you wish to save the attachments or email bodies
 2. filefmt - the file format you would **only** like to save. Helpful if you only want to save the .csv files across many e-mails
 3. olreadfolder - the name of the outlook folder which has the e-mails you wish to process
-4. olprocessedfolder - the name of the subfolder (which must be nested under the olreadfolder) you wish you move these sucessfully processed e-mails to
+4. olprocessedfolder - the name of the subfolder you wish you move these sucessfully processed e-mails to
 5. guiEntry - True if called from a GUI. False if called from a cmd prompt
 6. proc - Name of the process being run "olatt" is save attachments only, "olbody" will save the text found in the body of the emails as a .csv each with a datestamp
 

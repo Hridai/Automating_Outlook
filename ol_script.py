@@ -3,6 +3,7 @@ import os
 import argparse
 import csv
 import win32com.client
+ 
 
 def _right(s, amount):
     return s[-amount:]
@@ -13,34 +14,32 @@ def _scriptOutput(s, gui_entry):
     else:
         sys.exit(s)
 
+def _find_subfolder(Folders_obj, folder_search_name):
+    ''' Recurse through all Outlook folders to find user-defined folder names'''
+    for i in range(0, len(Folders_obj)):
+        try:
+            ret = Folders_obj[i].Folders[folder_search_name]
+            return ret
+        except:
+            ret = _find_subfolder(Folders_obj[i].Folders, folder_search_name)
+        if ret is not None:
+            return ret
+        else:
+            continue
+
 def run_ol_Script(outdest, filefmt, olreadfolder, olprocessedfolder, gui_entry, proc):
     outdest = os.path.normpath(outdest)
     outlook = win32com.client.Dispatch("Outlook.Application").GetNamespace("MAPI")
-    inbox = None
-    for folder in outlook.Folders:
-        try:
-            inbox = folder.Folders['Inbox'].Folders[olreadfolder]
-            break
-        except Exception as e:
-            print(e)
+    inbox = _find_subfolder(outlook.Folders, olreadfolder)
     if inbox is None:
         sys.exit(f'No Folder {olreadfolder} found!!! Exiting.')
-    procbox = olprocessedfolder
-    if procbox is not None:
-        procbox = None
-        for folder in outlook.Folders:
-            try:
-                procbox = folder.Folders['Inbox'].Folders[olreadfolder].Folders[olprocessedfolder]
-                break
-            except Exception as e:
-                print(e)
-        if procbox is None:
-            sys.exit(f'Folder {olprocessedfolder} not found!!! Exiting.')
+    procbox = _find_subfolder(outlook.Folders, olprocessedfolder)
+    if procbox is None:
+        sys.exit(f'Folder {olprocessedfolder} not found!!! Exiting.')
 
     messages = inbox.Items
     if len(messages) == 0:
         _scriptOutput( 'No emails found in folder [{}]'.format(olreadfolder), gui_entry)
-    
     mail_counter = 0
     for msg in list(messages):
         b_processed = False
@@ -77,10 +76,8 @@ if __name__ == "__main__":
     parser.add_argument("-olf2","--olprocfolder",default=None)
     parser.add_argument("-typ","--olfiletype",default="blank")
     args = parser.parse_args()
-    
     b_olatt = True if args.olatt is None else False
     b_olbody = True if args.olbody is None else False
-    
     if (not b_olatt and not b_olbody):
         sys.exit('No process choice made, choose between ol attachments saver (--olatt) and ol mail body saver (--olbody)!')
     if args.outdest == '':
