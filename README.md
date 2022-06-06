@@ -72,8 +72,8 @@ There is one main function that has been written such that you can call it from 
 runOlScript has 6 function arguments:
 1. outdest - the path to the folder you wish to save the attachments or email bodies
 2. filefmt - the file format you would **only** like to save. Helpful if you only want to save the .csv files across many e-mails
-3. olreadfolder - the name of the outlook folder which has the e-mails you wish to process
-4. olprocessedfolder - the name of the subfolder you wish you move these sucessfully processed e-mails to
+3. olreadfolder - the name of the outlook folder which has the e-mails you wish to process (must be a uniquely named folder!)
+4. olprocessedfolder - the name of the subfolder you wish you move these sucessfully processed e-mails to (must be a uniquely named folder!)
 5. guiEntry - True if called from a GUI. False if called from a cmd prompt
 6. proc - Name of the process being run "olatt" is save attachments only, "olbody" will save the text found in the body of the emails as a .csv each with a datestamp
 
